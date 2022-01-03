@@ -2,7 +2,10 @@ import pygame as p
 
 import ChessEngine
 
-WIDTH = HEIGHT = 512
+# deneme 1 2
+
+GRID_WIDTH = GRID_HEIGHT = 512
+WIDTH = HEIGHT = GRID_WIDTH + 100
 DIMENSION = 8
 SQ_SIZE = HEIGHT // DIMENSION
 
