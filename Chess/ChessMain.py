@@ -1,7 +1,7 @@
 
 import pygame as p
 
-from Chess import ChessEngine
+import ChessEngine
 
 WIDTH = HEIGHT = 512
 DIMENSION = 8
@@ -26,10 +26,29 @@ def main():
 
     loadImages()
     running = True
+    sqSelected = ()
+    playerClicks = []
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
+            elif e.type == p.MOUSEBUTTONDOWN:
+                location = p.mouse.get_pos()
+                col = location[0] // SQ_SIZE
+                row = location[1] // SQ_SIZE
+
+                if sqSelected == (row, col):
+                    sqSelected = ()
+                    playerClicks = []
+                else:
+                    sqSelected = (row, col)
+                    playerClicks.append(sqSelected)
+                if len(playerClicks) == 2:
+                    move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)  # what is gs
+                    gs.makeMove(move)
+                    sqSelected = ()
+                    playerClicks = []
+                    
         drawGameState(screen, gs)
         clock.tick(MAX_FPS)
         p.display.flip()
