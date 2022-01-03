@@ -3,6 +3,7 @@ import pygame as p
 import ChessEngine
 
 WIDTH = HEIGHT = 512
+MARGIN_WIDTH = MARGIN_HEIGHT = WIDTH + 100
 DIMENSION = 8
 SQ_SIZE = HEIGHT // DIMENSION
 
@@ -19,7 +20,7 @@ def loadImages():
 
 def main():
     p.init()
-    screen = p.display.set_mode((WIDTH, HEIGHT))
+    screen = p.display.set_mode((MARGIN_WIDTH, MARGIN_HEIGHT))
     clock = p.time.Clock()
     screen.fill(p.Color('white'))
     gs = ChessEngine.GameState()
