@@ -2,7 +2,6 @@ import pygame as p
 
 import ChessEngine
 
-# Global constants
 GRID_WIDTH = GRID_HEIGHT = 512
 WIDTH = HEIGHT = GRID_WIDTH + 100
 DIMENSION = 8
@@ -55,9 +54,10 @@ def main():
                     if move in validMoves:
                         gs.makeMove(move)
                         moveMade = True
-                    sqSelected = ()
-                    playerClicks = []
-
+                        sqSelected = ()
+                        playerClicks = []
+                    else:
+                        playerClicks = [sqSelected]
             # key handlers
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z:  # undo a move when 'z' is pressed
