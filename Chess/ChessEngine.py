@@ -1,8 +1,21 @@
+"""
+Handle user input and display current GameState object
+"""
+
 import numpy as np
+
 
 class GameState:
     def __init__(self):
-        board = np.array([
+        """
+        Initialization of the board
+
+        First character: color of the piece
+        Second character: type of piece
+        "--" if there is no piece there at that moment
+        """
+
+        self.board = np.array([
             ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
             ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
             ['--', '--', '--', '--', '--', '--', '--', '--'],
@@ -11,8 +24,10 @@ class GameState:
             ['--', '--', '--', '--', '--', '--', '--', '--'],
             ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
             ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']], dtype = 'U')
-        self.board = board
+
+        # For tracking whose turn it is
         self.whiteToMove = True
+
         self.moveLog = []
         self.moveFunctions = {'p': self.getPawnMoves,
                               'R': self.getRookMoves,

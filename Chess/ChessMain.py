@@ -1,28 +1,48 @@
-import pygame as p
+"""
+- Store current state of chess game
+- Determine valid moves at the current state
+- Keep a move log
+"""
 
+import pygame as p
 import ChessEngine
 
+# Global constants
+
+# SOR: Bunlar niye boyle?
 GRID_WIDTH = GRID_HEIGHT = 512
 WIDTH = HEIGHT = GRID_WIDTH + 100
+
 DIMENSION = 8
 SQ_SIZE = HEIGHT // DIMENSION
 
 MAX_FPS = 15
 
-IMAGES = {}  # will be called exactly once
+IMAGES = {}
 
-
+'''
+Initialize a global dictionary of images. Will be called once in the main.
+'''
 def loadImages():
     pieces = ['wp', 'wR', 'wN', 'wB', 'wQ', 'wK', 'bp', 'bR', 'bN', 'bB', 'bQ', 'bK']
     for piece in pieces:
+        # Load image by scaling it to the square size
         IMAGES[piece] = p.transform.scale(p.image.load('images/' + piece + '.png'), (SQ_SIZE, SQ_SIZE))
+        #NOTE: Access an image by 'IMAGES['wp']'
 
-
+'''
+Main function
+'''
 def main():
+    # Initialize a pygame
     p.init()
+
+    # Set display and background
     screen = p.display.set_mode((WIDTH, HEIGHT))
     clock = p.time.Clock()
     screen.fill(p.Color('white'))
+
+    # Initialize a GameState object
     gs = ChessEngine.GameState()
     validMoves = gs.getValidMoves()
     moveMade = False
@@ -72,24 +92,35 @@ def main():
         clock.tick(MAX_FPS)
         p.display.flip()
 
-
+'''
+Graphics in the current GameState.
+'''
 def drawGameState(screen, gs):
+    # These two functions are separated since we might want to add a highlighting attribute.
     drawBoard(screen)
     drawPieces(screen, gs.board)
 
-
+'''
+Draw the squares on the board. The top left square is always light. 
+'''
 def drawBoard(screen):
     colors = [p.Color('white'), p.Color('gray')]
     for row in range(DIMENSION):
         for col in range(DIMENSION):
+            # Pick the color depending on row and col
+            # Light squares have even parity, dark squares have odd parity.
             color = colors[((row + col) % 2)]
+            # Draw the square
             p.draw.rect(screen, color, p.Rect(col * SQ_SIZE, row * SQ_SIZE, SQ_SIZE, SQ_SIZE))
 
-
+'''
+Draw pieces on top of the squares.
+'''
 def drawPieces(screen, board):
     for row in range(DIMENSION):
         for col in range(DIMENSION):
             piece = board[row][col]
+            # If the position is not empty, draw the piece.
             if piece != '--':
                 screen.blit(IMAGES[piece], p.Rect(col * SQ_SIZE, row * SQ_SIZE, SQ_SIZE, SQ_SIZE))
 
