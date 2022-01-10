@@ -3,10 +3,14 @@ import pygame as p
 import ChessEngine
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 # deneme 1 2
 
 >>>>>>> parent of e3e77df (Boran Deneme)
+=======
+# Global constants
+>>>>>>> parent of 7687dbf (deneme)
 GRID_WIDTH = GRID_HEIGHT = 512
 WIDTH = HEIGHT = GRID_WIDTH + 100
 DIMENSION = 8
@@ -59,10 +63,9 @@ def main():
                     if move in validMoves:
                         gs.makeMove(move)
                         moveMade = True
-                        sqSelected = ()
-                        playerClicks = []
-                    else:
-                        playerClicks = [sqSelected]
+                    sqSelected = ()
+                    playerClicks = []
+
             # key handlers
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z:  # undo a move when 'z' is pressed
