@@ -9,7 +9,7 @@ SQ_SIZE = HEIGHT // DIMENSION
 
 MAX_FPS = 15
 
-IMAGES = {}  # will be called exacly once
+IMAGES = {}  # will be called exactly once
 
 
 def loadImages():
