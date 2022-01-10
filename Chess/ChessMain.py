@@ -4,10 +4,14 @@ import ChessEngine
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 # deneme 1 2
 
 >>>>>>> parent of e3e77df (Boran Deneme)
+=======
+# Global constants
+>>>>>>> parent of 7687dbf (deneme)
 =======
 # Global constants
 >>>>>>> parent of 7687dbf (deneme)
