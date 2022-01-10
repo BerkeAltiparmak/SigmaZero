@@ -44,8 +44,9 @@ def main():
 
     # Initialize a GameState object
     gs = ChessEngine.GameState()
+    # Generate valid moves
     validMoves = gs.getValidMoves()
-    moveMade = False
+    moveMade = False # flag variable for when a move is made
 
     # Load images and set running to true
     loadImages()
@@ -86,7 +87,7 @@ def main():
                     move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
                     # Debugging -- print the notation for the move
                     print(move.getChessNotation())
- 
+
                     if move in validMoves:
                         # Make the move
                         gs.makeMove(move)
@@ -104,6 +105,7 @@ def main():
                     gs.undoMove()
                     moveMade = True
 
+        # If a move was made, generate the valid moves for the new state of the board
         if moveMade:
             validMoves = gs.getValidMoves()
             moveMade = False

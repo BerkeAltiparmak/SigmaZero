@@ -17,6 +17,7 @@ class GameState:
         "--" if there is no piece there at that moment
         """
 
+        # Declare the initial chessboard as a np array of strings
         self.board = np.array([
             ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
             ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
@@ -31,6 +32,9 @@ class GameState:
         self.whiteToMove = True
 
         self.moveLog = []
+
+        # Dictionary from character to function
+        # Map every letter to function that should be called
         self.moveFunctions = {'p': self.getPawnMoves,
                               'R': self.getRookMoves,
                               'B': self.getBishopMoves,
@@ -42,7 +46,7 @@ class GameState:
 
     def makeMove(self, move):
         """Takes in a valid move and updates the board accordingly. Also updates the log and changes the player turn.
-
+        NOTE: Does not work for castling, en-passant and pawn promotion.
         :param move: a Move object
         """
 
@@ -53,66 +57,113 @@ class GameState:
         self.whiteToMove = not self.whiteToMove  # change the player to move
 
     def undoMove(self):
-            if len(self.moveLog) != 0:
+            """
+            Undo the last move, if it's not the first move.
+            """
+            if len(self.moveLog) != 0: # check if it's not the first move
+                # Remove and get the last move
                 move = self.moveLog.pop()
+                # Put the pieces back
                 self.board[move.startRow][move.startCol] = move.pieceMoved
                 self.board[move.endRow][move.endCol] = move.pieceCaptured
+
                 self.whiteToMove = not self.whiteToMove  # change the player to move
 
+
     def getValidMoves(self):
+        """
+
+        """
+        #TO-DO: Consider checks
         return self.getAllPossibleMoves()
 
+
+
     def getAllPossibleMoves(self):
+        """
+        Generates all possible moves without considering checks.
+        :return: A list of Move objects of legal moves.
+        """
+
         moves = []
+        # Loop through the 2D array and check every position for a piece
         for r in range(len(self.board)):
             for c in range(len(self.board[r])):
-                turn = self.board[r][c][0]
+                turn = self.board[r][c][0] # the first letter of the string denotes the player (b or w)
+                # Check who's turn it and if it matches,
                 if (turn == 'w' and self.whiteToMove) or (turn == 'b' and not self.whiteToMove):
                     piece = self.board[r][c][1]
                     self.moveFunctions[piece](r,c,moves)
         return moves
 
     def getPawnMoves(self, r, c, moves):
+        """
+        Get all the pawn moves for the pawn located at r,c and add these moves to the moves list.
+
+        :param r: the row of the pawn
+        :param c: the col of the pawn
+        :param moves: a list of the legal Move objects so far
+        """
+        # White pawn moves
         if self.whiteToMove:
+            # If the position in front of the pawn is empty
             if self.board[r-1][c] == '--':
+                # Append that possible move
                 moves.append(Move((r,c), (r-1,c), self.board))
-                if r == 6 and self.board[r-2][c] == '--': #açılışta iki ileri sürmek
+                # initial pawn move two squares
+                if (r == 6) and (self.board[r-2][c] == '--'):
                     moves.append(Move((r,c), (r-2,c), self.board))
-            if c-1 >= 0: #sola capture
+
+            # Captures
+            if c-1 >= 0: # capturing to the left
                 if self.board[r-1][c-1][0] == 'b':
                     moves.append(Move((r,c), (r-1,c-1), self.board))
-            if c+1 <= 7: #sağa capture
+            if c+1 <= len(self.board[0]): # capturing to the right
                 if self.board[r-1][c+1][0] == 'b':
                     moves.append(Move((r,c), (r-1,c+1), self.board))
+        # Black pawn moves
         else:
+
             if self.board[r + 1][c] == '--':
                 moves.append(Move((r, c), (r + 1, c), self.board))
-                if r == 1 and self.board[r + 2][c] == '--':  # açılışta iki ileri sürmek
+                # initial pawn move two squares
+                if (r == 1) and (self.board[r + 2][c]) == '--':
                     moves.append(Move((r, c), (r + 2, c), self.board))
-            if c - 1 >= 0:  # sola capture
+
+            # Captures
+            if c - 1 >= 0:  # capturing to the left
                 if self.board[r + 1][c - 1][0] == 'w':
                     moves.append(Move((r, c), (r + 1, c - 1), self.board))
-            if c + 1 <= 7:  # sağa capture
+            if (c + 1) <= len(self.board[0]):  # capturing to the right
                 if self.board[r + 1][c + 1][0] == 'w':
                     moves.append(Move((r, c), (r + 1, c + 1), self.board))
 
     def getRookMoves(self, r, c, moves):
+        """
+        :param r: row of the rook
+        :param c: column of the rook
+        :param moves: a list of the legal Move objects so far
+        """
         directions = [(0,1),(1,0),(0,-1),(-1,0)]
-        enemycolor = 'b' if self.whiteToMove else 'w'
+        enemyColor = 'b' if self.whiteToMove else 'w'
         for d in directions:
             for i in range(1,8):
                 endRow = r + d[0]*i
                 endCol = c + d[1]*i
-                if 0 <= endRow < 8 and 0 <= endCol < 8:
+                if (0 <= endRow < len(self.board)) and (0 <= endCol < len(self.board[0])):
                     endPiece = self.board[endRow][endCol]
+                    # If the square is empty, add it to the list
                     if endPiece == '--':
                         moves.append(Move((r,c), (endRow, endCol), self.board))
-                    elif endPiece[0] == enemycolor:
+                    # If the square has an enemy piece, add it to the list and break
+                    elif endPiece[0] == enemyColor:
                         moves.append(Move((r,c), (endRow, endCol), self.board))
                         break
-                    else: # önemli (kendi taşı varsa)
+                    # If it is our piece, directly break
+                    else:
                         break
-                else: # önemli (off board)
+                # If it is off the board, break
+                else:
                     break
 
 
@@ -164,7 +215,9 @@ class GameState:
                     moves.append(Move((r, c), (endRow, endCol), self.board))
 
 class Move():
-
+    """
+    A class representing a move with a starting position, ending position and a GameState object.
+    """
     def __init__(self, startSq, endSq, board):
         # Get the rows and cols of the starting and ending squares
         self.startRow = startSq[0]
@@ -175,20 +228,24 @@ class Move():
         self.pieceMoved = board[self.startRow][self.startCol] # get the movedPiece
         self.pieceCaptured = board[self.endRow][self.endCol]  # might be "--"
 
+        # Generate moveID unique to each starting and ending square
+        # For comparison to other Move objects
         self.moveID = self.startRow * 1000 + self.startCol * 100 + self.endRow * 10 + self.endCol
 
-    """
-    Overriding the equals method
-    """
+
     def __eq__(self, other):
+        """
+        Overriding the equals method so we can compare two Move objects.
+        """
         if isinstance(other, Move):
             return self.moveID == other.moveID
         return False
 
-    """
-    Get the chess notation of the move using the rankFile helper function.
-    """
+
     def getChessNotation(self):
+        """
+        Get the chess notation of the move using the rankFile helper function.
+        """
         return self.getRankFile(self.startRow, self.startCol) + self.getRankFile(self.endRow, self.endCol)
 
     # Create dictionaries for converting chess notation to computer notation and vice versa
@@ -200,8 +257,9 @@ class Move():
     filesToCols = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
     colsToFiles = {v: k for k, v in filesToCols.items()}
 
-    """
-    Convert computer notation to rank-file notation using the dictionaries above.
-    """
+
     def getRankFile(self, r, c):
+        """
+        Convert computer notation to rank-file notation using the dictionaries above.
+        """
         return self.colsToFiles[c] + self.rowsToRanks[r]
