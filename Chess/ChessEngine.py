@@ -4,8 +4,10 @@ Handle user input and display current GameState object
 
 import numpy as np
 
-
 class GameState:
+    """
+    Class used to represent the current state of the chessboard.
+    """
     def __init__(self):
         """
         Initialization of the board
@@ -37,9 +39,16 @@ class GameState:
                               'K': self.getKingMoves
                               }
 
+
     def makeMove(self, move):
-        self.board[move.startRow][move.startCol] = "--"
-        self.board[move.endRow][move.endCol] = move.pieceMoved
+        """Takes in a valid move and updates the board accordingly. Also updates the log and changes the player turn.
+
+        :param move: a Move object
+        """
+
+        self.board[move.startRow][move.startCol] = "--" # the position we started from becomes blank
+        self.board[move.endRow][move.endCol] = move.pieceMoved # the piece goes to the target position
+
         self.moveLog.append(move)  # keep track of the moves
         self.whiteToMove = not self.whiteToMove  # change the player to move
 
@@ -139,8 +148,6 @@ class GameState:
                     break
 
 
-
-
     def getQueenMoves(self, r, c, moves):
         self.getRookMoves(r, c, moves)
         self.getBishopMoves(r,c, moves)
@@ -157,19 +164,17 @@ class GameState:
                     moves.append(Move((r, c), (endRow, endCol), self.board))
 
 class Move():
-    # Converting chess notation to computer notation and vice versa
-    ranksToRows = {"1": 7, "2": 6, "3": 5, "4": 4, "5": 3, "6": 2, "7": 1, "8": 0}
-    rowsToRanks = {v: k for k, v in ranksToRows.items()}
-    filesToCols = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
-    colsToFiles = {v: k for k, v in filesToCols.items()}
 
     def __init__(self, startSq, endSq, board):
+        # Get the rows and cols of the starting and ending squares
         self.startRow = startSq[0]
         self.startCol = startSq[1]
         self.endRow = endSq[0]
         self.endCol = endSq[1]
-        self.pieceMoved = board[self.startRow][self.startCol]
+
+        self.pieceMoved = board[self.startRow][self.startCol] # get the movedPiece
         self.pieceCaptured = board[self.endRow][self.endCol]  # might be "--"
+
         self.moveID = self.startRow * 1000 + self.startCol * 100 + self.endRow * 10 + self.endCol
 
     """
@@ -180,9 +185,23 @@ class Move():
             return self.moveID == other.moveID
         return False
 
-
+    """
+    Get the chess notation of the move using the rankFile helper function.
+    """
     def getChessNotation(self):
         return self.getRankFile(self.startRow, self.startCol) + self.getRankFile(self.endRow, self.endCol)
 
+    # Create dictionaries for converting chess notation to computer notation and vice versa
+    # Maps keys to values
+    # Key : Value
+    ranksToRows = {"1": 7, "2": 6, "3": 5, "4": 4, "5": 3, "6": 2, "7": 1, "8": 0}
+    # Reverse the values and keys in the dictionary
+    rowsToRanks = {v: k for k, v in ranksToRows.items()}
+    filesToCols = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
+    colsToFiles = {v: k for k, v in filesToCols.items()}
+
+    """
+    Convert computer notation to rank-file notation using the dictionaries above.
+    """
     def getRankFile(self, r, c):
         return self.colsToFiles[c] + self.rowsToRanks[r]

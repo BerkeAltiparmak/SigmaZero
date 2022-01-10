@@ -47,37 +47,57 @@ def main():
     validMoves = gs.getValidMoves()
     moveMade = False
 
+    # Load images and set running to true
     loadImages()
     running = True
-    sqSelected = ()
-    playerClicks = []
+
+    # variables for implementing the function for moving pieces
+    sqSelected = () #keep track of the last click (tuple):(row,col)
+    playerClicks = [] # keep track of player clicks --> two tuples, [(6,4),(4,4)]
+
+    # Main while loop
     while running:
         for e in p.event.get():
+            # Exit the program if we quit
             if e.type == p.QUIT:
                 running = False
 
             # mouse handlers
             elif e.type == p.MOUSEBUTTONDOWN:
-                location = p.mouse.get_pos()
+                location = p.mouse.get_pos() # get location of the mouse
+
+                # Calculate the row and col of current mouse click
                 col = location[0] // SQ_SIZE
                 row = location[1] // SQ_SIZE
 
+                # To prevent the player from moving a piece to the same position
                 if sqSelected == (row, col):
-                    sqSelected = ()
+                    sqSelected = () #deselect square
                     playerClicks = []
+                # If it is a different square, actually append the move to playerClicks
                 else:
                     sqSelected = (row, col)
                     playerClicks.append(sqSelected)
+
+                # If this is the second click, move the piece
+                # Else, only append sqSelected to playerClicks
                 if len(playerClicks) == 2:
+                    # Create the Move object
                     move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
+                    # Debugging -- print the notation for the move
                     print(move.getChessNotation())
+ 
                     if move in validMoves:
+                        # Make the move
                         gs.makeMove(move)
                         moveMade = True
+                        # Clear the variables for future moves
                         sqSelected = ()
                         playerClicks = []
+                    # If not a valid move, just make this the initial square selected
                     else:
                         playerClicks = [sqSelected]
+
             # key handlers
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z:  # undo a move when 'z' is pressed
