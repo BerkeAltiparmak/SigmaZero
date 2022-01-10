@@ -2,11 +2,6 @@ import pygame as p
 
 import ChessEngine
 
-<<<<<<< HEAD
-=======
-# deneme 1 2
-
->>>>>>> parent of e3e77df (Boran Deneme)
 GRID_WIDTH = GRID_HEIGHT = 512
 WIDTH = HEIGHT = GRID_WIDTH + 100
 DIMENSION = 8
@@ -14,7 +9,7 @@ SQ_SIZE = HEIGHT // DIMENSION
 
 MAX_FPS = 15
 
-IMAGES = {}  # will be called exacly once
+IMAGES = {}  # will be called exactly once
 
 
 def loadImages():
