@@ -35,13 +35,19 @@ class GameState:
 
         # Dictionary from character to function
         # Map every letter to function that should be called
-        self.moveFunctions = {'p': self.getPawnMoves,
-                              'R': self.getRookMoves,
-                              'B': self.getBishopMoves,
-                              'N': self.getKnightMoves,
-                              'Q': self.getQueenMoves,
-                              'K': self.getKingMoves
-                              }
+        self.moveFunctions = {'p': self.getPawnMoves, 'R': self.getRookMoves,
+                              'B': self.getBishopMoves, 'N': self.getKnightMoves,
+                              'Q': self.getQueenMoves,'K': self.getKingMoves}
+
+        # Keeping track of the kings' locations
+        self.whiteKingLocation = (7,4)
+        self.blackKingLocation = (0,4)
+
+        # Keeping track of mates
+        self.checkMate = False
+        self.staleMate = False
+
+
 
 
     def makeMove(self, move):
@@ -56,6 +62,14 @@ class GameState:
         self.moveLog.append(move)  # keep track of the moves
         self.whiteToMove = not self.whiteToMove  # change the player to move
 
+        # Update king's location if the moved piece is the king
+        if move.pieceMoved == 'wK':
+            self.whiteKingLocation = (move.endRow,move.endCol)
+        elif move.pieceMoved == 'bK':
+            self.blackKingLocation = (move.endRow, move.endCol)
+
+
+
     def undoMove(self):
             """
             Undo the last move, if it's not the first move.
@@ -69,15 +83,65 @@ class GameState:
 
                 self.whiteToMove = not self.whiteToMove  # change the player to move
 
+                # Update king's location if the moved piece is the king
+                if move.pieceMoved == 'wK':
+                    self.whiteKingLocation = (move.startRow, move.startCol)
+                elif move.pieceMoved == 'bK':
+                    self.blackKingLocation = (move.startRow, move.startCol)
+
 
     def getValidMoves(self):
         """
-
+        Remove the Move objects from the moves list that cause checks and return the moves list.
+        :return: a list of all valid moves of Move objects
         """
-        #TO-DO: Consider checks
-        return self.getAllPossibleMoves()
+        #1 - Generate all possible moves
+        moves = self.getAllPossibleMoves()
+        #2 - For each move, make the move
+        for i in range(len(moves) - 1, -1, -1): # loop through the moves list backwards
+            self.makeMove(moves[i])
+            #3 - Generate all opponent's moves
+            #4 - If one move attacks your king, remove the move
+            self.whiteToMove = not self.whiteToMove # swap back since we made a move in step 2
+            if self.inCheck():
+                moves.remove(moves[i])
+            self.whiteToMove = not self.whiteToMove
+            self.undoMove()
 
+        if len(moves) == 0: # either checkmate or stalemate
+            if self.inCheck():
+                self.checkMate = True
+            else:
+                self.staleMate = True
+        else: # to prevent crashes when we undo moves
+            self.checkMate = False
+            self.staleMate = False
 
+        return moves
+
+    def inCheck(self):
+        """
+        Determine if the current player is in check.
+        :return:
+        """
+        if self.whiteToMove:
+            return self.squareUnderAttack(self.whiteKingLocation[0],self.whiteKingLocation[1])
+        return self.squareUnderAttack(self.blackKingLocation[0],self.blackKingLocation[1])
+
+    def squareUnderAttack(self, r, c):
+        """
+        Determine if the enemy can attack the square (r,c).
+        :param r: row of the square
+        :param c: col of the square
+        :return: True if the square can be attacked, False otherwise
+        """
+        self.whiteToMove = not self.whiteToMove # switch to enemy POV
+        oppMoves = self.getAllPossibleMoves()
+        self.whiteToMove = not self.whiteToMove  # switch back
+        for move in oppMoves:
+            if move.endRow == r and move.endCol == c: # square is under attack
+                return True
+        return False
 
     def getAllPossibleMoves(self):
         """
@@ -118,7 +182,7 @@ class GameState:
             if c-1 >= 0: # capturing to the left
                 if self.board[r-1][c-1][0] == 'b':
                     moves.append(Move((r,c), (r-1,c-1), self.board))
-            if c+1 <= len(self.board[0]): # capturing to the right
+            if c+1 <= len(self.board[0]) - 1: # capturing to the right
                 if self.board[r-1][c+1][0] == 'b':
                     moves.append(Move((r,c), (r-1,c+1), self.board))
         # Black pawn moves
@@ -134,7 +198,7 @@ class GameState:
             if c - 1 >= 0:  # capturing to the left
                 if self.board[r + 1][c - 1][0] == 'w':
                     moves.append(Move((r, c), (r + 1, c - 1), self.board))
-            if (c + 1) <= len(self.board[0]):  # capturing to the right
+            if (c + 1) <= len(self.board[0]) - 1:  # capturing to the right
                 if self.board[r + 1][c + 1][0] == 'w':
                     moves.append(Move((r, c), (r + 1, c + 1), self.board))
 
