@@ -1,6 +1,2 @@
 # SigmaZero
-A chess engine better than AlphaZero
-
-hello atak
-batak
-satak
+A chess engine that calculates the best moves using minimax algorithm improved with alpha-beta pruning.
