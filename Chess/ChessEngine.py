@@ -38,6 +38,63 @@ class GameState:
         self.current_castling_rights = CastleRights(True, True, True, True)
         self.castle_rights_log = [CastleRights(self.current_castling_rights.wks, self.current_castling_rights.bks,
                                                self.current_castling_rights.wqs, self.current_castling_rights.bqs)]
+        self.FEN_translator = {"r": "bR", "n": "bN", "b": "bB", "q": "bQ", "k": "bK", "p": "bp",
+                               "R": "wR", "N": "wN", "B": "wB", "Q": "wQ", "K": "wK", "P": "wp"}
+
+    def FEN_to_board(self, FEN: str):
+        row = 0
+        column = 0
+        self.board = [
+            ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
+            ["bp", "bp", "bp", "bp", "bp", "bp", "bp", "bp"],
+            ["--", "--", "--", "--", "--", "--", "--", "--"],
+            ["--", "--", "--", "--", "--", "--", "--", "--"],
+            ["--", "--", "--", "--", "--", "--", "--", "--"],
+            ["--", "--", "--", "--", "--", "--", "--", "--"],
+            ["wp", "wp", "wp", "wp", "wp", "wp", "wp", "wp"],
+            ["wR", "wN", "wB", "wQ", "wK", "wB", "wN", "wR"]]
+        for i in range(0, len(FEN)):
+            piece = FEN[i]
+            if piece == "/":
+                row += 1
+                column = 0
+            if piece in {"0", "1", "2", "3", "4", "5", "6", "7", "8"}:
+                value = int(piece)
+                for _ in range(0, value):
+                    self.board[row][column] = "--"
+                    column += 1
+            elif piece in self.FEN_translator:
+                pc = self.FEN_translator[piece]
+                self.board[row][column] = pc
+                column += 1
+            elif piece == " ":
+                piece = FEN[i+1]
+                self.white_to_move = True if piece == " w" else False
+                break
+
+    def board_to_FEN(self, board: list[list[str]]):
+        FEN = ''
+        board_translator = {self.FEN_translator[key]: key for key in self.FEN_translator}
+        row = 0
+        for chess_row in board:
+            empty_counter = 0
+            row += 1
+            column = 0
+            for piece in chess_row:
+                column += 1
+                if piece == "--":
+                    empty_counter += 1
+                if empty_counter > 0 and (piece != "--" or column == 8):
+                    FEN += str(empty_counter)
+                    empty_counter = 0
+                if piece != "--":
+                    piece_FEN = board_translator[piece]
+                    FEN += piece_FEN
+            if row != 8:
+                FEN += '/'
+            else:
+                FEN += " w" if self.white_to_move else " b"
+        return FEN
 
     def makeMove(self, move):
         """
@@ -563,8 +620,10 @@ class CastleRights:
 
 
 class Move:
-    # in chess, fields on the board are described by two symbols, one of them being number between 1-8 (which is corresponding to rows)
-    # and the second one being a letter between a-f (corresponding to columns), in order to use this notation we need to map our [row][col] coordinates
+    # in chess, fields on the board are described by two symbols, one of them being number
+    # between 1-8 (which is corresponding to rows)
+    # and the second one being a letter between a-f (corresponding to columns), in order to use
+    # this notation we need to map our [row][col] coordinates
     # to match the ones used in the original chess game
     ranks_to_rows = {"1": 7, "2": 6, "3": 5, "4": 4,
                      "5": 3, "6": 2, "7": 1, "8": 0}

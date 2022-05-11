@@ -15,6 +15,8 @@ from multiprocessing import Process, Queue
 BOARD_WIDTH = BOARD_HEIGHT = 512
 MOVE_LOG_PANEL_WIDTH = 250
 MOVE_LOG_PANEL_HEIGHT = BOARD_HEIGHT
+FEN_PANEL_WIDTH = BOARD_WIDTH + MOVE_LOG_PANEL_WIDTH
+FEN_PANEL_HEIGHT = 20
 DIMENSION = 8
 SQUARE_SIZE = BOARD_HEIGHT // DIMENSION
 MAX_FPS = 15
@@ -60,7 +62,7 @@ def main():
     move_finder_process = None
     move_log_font = p.font.SysFont("Arial", 14, False, False)
     player_one = True  # if a human is playing white, then this will be True, else False
-    player_two = True  # if a hyman is playing white, then this will be True, else False
+    player_two = True  # if a human is playing white, then this will be True, else False
 
     # Main while loop
     while running:
@@ -176,7 +178,7 @@ def drawBoard(screen):
     The top left square is always light.
     """
     global colors
-    colors = [p.Color("white"), p.Color("gray")]
+    colors = [p.Color("white"), p.Color("grey")]
     for row in range(DIMENSION):
         for column in range(DIMENSION):
             color = colors[((row + column) % 2)]
@@ -248,6 +250,15 @@ def drawMoveLog(screen, game_state, font):
         text_location = move_log_rect.move(padding, text_y)
         screen.blit(text_object, text_location)
         text_y += text_object.get_height() + line_spacing
+
+
+def drawFENInput(screen, game_state):
+    """
+    Draws the FEN Input box.
+    """
+    base_font = p.font.Font(None, 32)
+    user_text = ''
+    input_rect = p.Rect(0, BOARD_HEIGHT, FEN_PANEL_WIDTH, FEN_PANEL_HEIGHT)
 
 
 def drawEndGameText(screen, text):
